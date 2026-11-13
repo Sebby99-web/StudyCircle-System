@@ -10,11 +10,11 @@ date_default_timezone_set('Asia/Manila');
 
 ini_set('session.use_strict_mode', '1');
 
+
 // ==========================================
 // SESSION CONFIGURATION
 // ==========================================
 
-// Separate session from the original project.
 if (session_status() !== PHP_SESSION_ACTIVE) {
 
     session_name('SC_SYSTEM_SESSION');
@@ -24,7 +24,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
     session_set_cookie_params([
         'lifetime' => 0,
-        'path' => '/StudyCircle-System/',
+        'path' => '/',
         'secure' => $https,
         'httponly' => true,
         'samesite' => 'Lax',
@@ -40,28 +40,23 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 try {
 
-    $db = require __DIR__ . '/../config/database.php';
+    /*
+     * config/database.php already
+     * creates the $pdo connection.
+     */
 
-    $pdo = new PDO(
-        'mysql:host=' . $db['host'] .
-        ';dbname=' . $db['name'] .
-        ';charset=utf8mb4',
+    require __DIR__ . '/../config/database.php';
 
-        $db['user'],
-        $db['password'],
+    if (
+        !isset($pdo) ||
+        !($pdo instanceof PDO)
+    ) {
+        throw new RuntimeException(
+            'Database connection was not initialized.'
+        );
+    }
 
-        [
-            PDO::ATTR_ERRMODE =>
-                PDO::ERRMODE_EXCEPTION,
-
-            PDO::ATTR_DEFAULT_FETCH_MODE =>
-                PDO::FETCH_ASSOC,
-
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
-
-    // Keep database time consistent with Manila.
+    // Use Philippine time for MySQL sessions.
     $pdo->exec("SET time_zone = '+08:00'");
 
 } catch (Throwable $exception) {
@@ -74,8 +69,8 @@ try {
     http_response_code(500);
 
     exit(
-        'Database connection failed. ' .
-        'Check MySQL and config/database.php.'
+        'Database initialization failed. ' .
+        'Please check the server error log.'
     );
 }
 
@@ -124,7 +119,9 @@ function current_user(): ?array
     $account = $statement->fetch();
 
     if (!$account) {
+
         unset($_SESSION['user_id']);
+
         return null;
     }
 
@@ -157,6 +154,7 @@ function require_admin(): array
     $user = require_login();
 
     if ($user['role'] !== 'admin') {
+
         http_response_code(403);
 
         exit('Administrator access required.');
@@ -181,6 +179,7 @@ function csrf_token(): string
     return $_SESSION['csrf_token'];
 }
 
+
 function verify_csrf(): void
 {
     $submitted = $_POST['csrf_token'] ?? '';
@@ -189,6 +188,7 @@ function verify_csrf(): void
         !is_string($submitted) ||
         !hash_equals(csrf_token(), $submitted)
     ) {
+
         http_response_code(419);
 
         exit(
