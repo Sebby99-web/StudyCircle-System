@@ -4,6 +4,17 @@ $activePage = $activePage ?? '';
 $extraCss = $extraCss ?? '';
 
 $navUser = current_user();
+
+$isAdmin = $navUser &&
+    $navUser['role'] === 'admin';
+
+$currentPage = basename(
+    (string) ($_SERVER['SCRIPT_NAME'] ?? '')
+);
+
+$brandTarget = $isAdmin
+    ? 'admin-dashboard.php'
+    : 'index.php';
 ?>
 
 <!doctype html>
@@ -46,13 +57,11 @@ $navUser = current_user();
         href="assets/css/site.css"
         rel="stylesheet">
 
-    <!-- OPTIONAL PAGE STYLESHEET -->
+    <!-- OPTIONAL ADMIN OR PAGE CSS -->
     <?php if ($extraCss !== ''): ?>
-
         <link
             href="<?= e($extraCss) ?>"
             rel="stylesheet">
-
     <?php endif; ?>
 
     <!-- SAVED THEME -->
@@ -83,8 +92,7 @@ $navUser = current_user();
             <!-- BRAND -->
             <a
                 class="brand"
-                href="index.php"
-                aria-label="StudyCircle homepage">
+                href="<?= e($brandTarget) ?>">
 
                 <span class="brand-symbol">
                     <span></span>
@@ -115,34 +123,36 @@ $navUser = current_user();
                 class="collapse navbar-collapse"
                 id="siteNav">
 
-                <!-- MAIN NAVIGATION -->
+                <!-- ROLE-BASED NAVIGATION -->
                 <div
                     class="navbar-nav mx-lg-auto gap-lg-1 mt-3 mt-lg-0">
 
-                    <a
-                        class="nav-link <?= $activePage === 'home' ? 'active' : '' ?>"
-                        href="index.php">
-                        Home
-                    </a>
+                    <?php if ($isAdmin): ?>
 
-                    <a
-                        class="nav-link <?= $activePage === 'browse' ? 'active' : '' ?>"
-                        href="sessions.php">
-                        Explore
-                    </a>
-
-                    <?php if ($navUser): ?>
+                        <!-- ADMINISTRATOR NAVIGATION -->
 
                         <a
-                            class="nav-link <?= $activePage === 'host' ? 'active' : '' ?>"
-                            href="create-session.php">
-                            Host
+                            class="nav-link <?= $currentPage === 'admin-dashboard.php' ? 'active' : '' ?>"
+                            href="admin-dashboard.php">
+                            Dashboard
                         </a>
 
                         <a
-                            class="nav-link <?= $activePage === 'mine' ? 'active' : '' ?>"
-                            href="my-sessions.php">
-                            My Sessions
+                            class="nav-link <?= $currentPage === 'admin-subjects.php' ? 'active' : '' ?>"
+                            href="admin-subjects.php">
+                            Subjects
+                        </a>
+
+                        <a
+                            class="nav-link <?= $currentPage === 'admin-sessions.php' ? 'active' : '' ?>"
+                            href="admin-sessions.php">
+                            Sessions
+                        </a>
+
+                        <a
+                            class="nav-link <?= $currentPage === 'admin-users.php' ? 'active' : '' ?>"
+                            href="admin-users.php">
+                            Users
                         </a>
 
                         <a
@@ -151,12 +161,40 @@ $navUser = current_user();
                             Profile
                         </a>
 
-                        <?php if ($navUser['role'] === 'admin'): ?>
+                    <?php else: ?>
+
+                        <!-- PUBLIC / STUDENT NAVIGATION -->
+
+                        <a
+                            class="nav-link <?= $activePage === 'home' ? 'active' : '' ?>"
+                            href="index.php">
+                            Home
+                        </a>
+
+                        <a
+                            class="nav-link <?= $activePage === 'browse' ? 'active' : '' ?>"
+                            href="sessions.php">
+                            Explore
+                        </a>
+
+                        <?php if ($navUser): ?>
 
                             <a
-                                class="nav-link <?= $activePage === 'admin' ? 'active' : '' ?>"
-                                href="admin-dashboard.php">
-                                Admin
+                                class="nav-link <?= $activePage === 'host' ? 'active' : '' ?>"
+                                href="create-session.php">
+                                Host
+                            </a>
+
+                            <a
+                                class="nav-link <?= $activePage === 'mine' ? 'active' : '' ?>"
+                                href="my-sessions.php">
+                                My Sessions
+                            </a>
+
+                            <a
+                                class="nav-link <?= $activePage === 'profile' ? 'active' : '' ?>"
+                                href="profile.php">
+                                Profile
                             </a>
 
                         <?php endif; ?>
@@ -169,7 +207,7 @@ $navUser = current_user();
                 <div
                     class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
 
-                    <!-- THEME -->
+                    <!-- DARK MODE -->
                     <button
                         id="themeToggle"
                         type="button"
@@ -191,7 +229,7 @@ $navUser = current_user();
 
                         </span>
 
-                        <!-- LOGOUT -->
+                        <!-- LOG OUT -->
                         <form
                             action="logout.php"
                             method="post"
