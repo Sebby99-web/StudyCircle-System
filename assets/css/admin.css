@@ -1,0 +1,253 @@
+/* =======================================
+   STUDYCIRCLE ADMIN MODULE
+======================================= */
+
+.admin-hero {
+    background: #2738d6;
+    color: #fff;
+    border-radius: 24px;
+    padding: 36px;
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-hero::after {
+    content: "";
+    position: absolute;
+    right: -50px;
+    top: -90px;
+    width: 230px;
+    height: 230px;
+    border-radius: 50%;
+    border: 38px solid rgba(255,255,255,.1);
+    pointer-events: none;
+}
+
+.admin-hero h1 {
+    font-size: clamp(1.8rem, 3vw, 2.65rem);
+    font-weight: 800;
+    letter-spacing: -.04em;
+}
+
+.admin-hero p {
+    color: #dfe4ff;
+    max-width: 570px;
+    margin-bottom: 0;
+}
+
+.admin-hero .section-kicker {
+    color: #ffe16a;
+}
+
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 26px;
+}
+
+.admin-tabs a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--paper);
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.admin-tabs a:hover,
+.admin-tabs a.active {
+    background: var(--soft-blue);
+    border-color: var(--blue);
+    color: var(--blue);
+}
+
+.admin-kpi {
+    height: 100%;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 19px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+
+.admin-kpi .kpi-symbol {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    background: var(--soft-blue);
+    color: var(--blue);
+    font-size: 1.3rem;
+    margin-bottom: 14px;
+}
+
+.admin-kpi .kpi-label {
+    color: var(--muted);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.admin-kpi .kpi-value {
+    font-family: "Outfit", sans-serif;
+    font-size: 2.3rem;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-top: 7px;
+}
+
+.admin-panel {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+}
+
+.admin-panel h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.admin-description {
+    color: var(--muted);
+    font-size: .87rem;
+    line-height: 1.7;
+}
+
+.admin-chart-box {
+    position: relative;
+    height: 290px;
+    width: 100%;
+}
+
+.admin-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-table {
+    color: var(--ink);
+    min-width: 680px;
+    margin-bottom: 0;
+}
+
+.admin-table th {
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.admin-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: .88rem;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table .table-title {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.admin-table .table-subtitle {
+    color: var(--muted);
+    font-size: .78rem;
+    margin-top: 4px;
+}
+
+.admin-subject-item {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 20px;
+    margin-bottom: 13px;
+}
+
+.admin-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 7px;
+    font-size: .82rem;
+}
+
+.admin-panel .form-control,
+.admin-panel .form-select,
+.admin-subject-item .form-control,
+.admin-subject-item .form-select {
+    background-color: var(--canvas);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    min-height: 42px;
+}
+
+.admin-panel .form-control:focus,
+.admin-subject-item .form-control:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(39,56,214,.12);
+}
+
+.admin-note {
+    padding: 14px 17px;
+    background: var(--soft-blue);
+    border-radius: 12px;
+    color: var(--blue);
+    font-size: .83rem;
+}
+
+.admin-inline-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.admin-blank {
+    text-align: center;
+    padding: 40px 15px;
+    color: var(--muted);
+}
+
+.admin-blank strong {
+    display: block;
+    color: var(--ink);
+    margin-bottom: 7px;
+}
+
+[data-bs-theme="dark"] .admin-table {
+    background: transparent;
+}
+
+@media (max-width: 767.98px) {
+    .admin-hero {
+        padding: 26px;
+    }
+
+    .admin-panel {
+        padding: 18px;
+    }
+
+    .admin-subject-item {
+        padding: 16px;
+    }
+
+    .admin-chart-box {
+        height: 250px;
+    }
+}

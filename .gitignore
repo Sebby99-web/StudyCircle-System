@@ -1,0 +1,48 @@
+# ==========================================
+# StudyCircle-System
+# Git ignore configuration
+# ==========================================
+
+# Local database credentials
+/config/database.php
+/tools/test.txt
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# IDE files
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local error logs
+*.log
+error_log
+php_errorlog
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Dependencies and build folders
+/vendor/
+/node_modules/
+
+# Local database exports and backups
+*.sql.gz
+*.sql.zip
+*backup*.sql
+*dump*.sql
+
+# Archive backups
+*.zip
+*.7z
+*.rar
