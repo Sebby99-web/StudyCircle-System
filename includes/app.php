@@ -7,7 +7,6 @@ declare(strict_types=1);
  */
 
 date_default_timezone_set('Asia/Manila');
-
 ini_set('session.use_strict_mode', '1');
 
 
@@ -22,9 +21,22 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     $https = !empty($_SERVER['HTTPS'])
         && $_SERVER['HTTPS'] !== 'off';
 
+    // Local XAMPP uses a subfolder.
+    // The live website uses the domain root.
+    $scriptPath = (string) (
+        $_SERVER['SCRIPT_NAME'] ?? ''
+    );
+
+    $cookiePath = str_starts_with(
+        $scriptPath,
+        '/StudyCircle-System/'
+    )
+        ? '/StudyCircle-System/'
+        : '/';
+
     session_set_cookie_params([
         'lifetime' => 0,
-        'path' => '/',
+        'path' => $cookiePath,
         'secure' => $https,
         'httponly' => true,
         'samesite' => 'Lax',
@@ -41,12 +53,48 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 try {
 
     /*
-     * config/database.php already
-     * creates the $pdo connection.
+     * Supports both configurations:
+     *
+     * Local XAMPP:
+     * database.php returns an array.
+     *
+     * InfinityFree:
+     * database.php may create $pdo.
      */
 
-    require __DIR__ . '/../config/database.php';
+    $dbSettings = require __DIR__
+        . '/../config/database.php';
 
+    if (is_array($dbSettings)) {
+
+        // Local XAMPP configuration.
+        $pdo = new PDO(
+            'mysql:host=' . $dbSettings['host'] .
+            ';dbname=' . $dbSettings['name'] .
+            ';charset=utf8mb4',
+
+            $dbSettings['user'],
+            $dbSettings['password'],
+
+            [
+                PDO::ATTR_ERRMODE =>
+                    PDO::ERRMODE_EXCEPTION,
+
+                PDO::ATTR_DEFAULT_FETCH_MODE =>
+                    PDO::FETCH_ASSOC,
+
+                PDO::ATTR_EMULATE_PREPARES =>
+                    false,
+            ]
+        );
+
+    } elseif ($dbSettings instanceof PDO) {
+
+        // Configuration directly returned a PDO.
+        $pdo = $dbSettings;
+    }
+
+    // Also supports database.php setting $pdo.
     if (
         !isset($pdo) ||
         !($pdo instanceof PDO)
@@ -56,13 +104,13 @@ try {
         );
     }
 
-    // Use Philippine time for MySQL sessions.
+    // Philippine timezone for MySQL.
     $pdo->exec("SET time_zone = '+08:00'");
 
 } catch (Throwable $exception) {
 
     error_log(
-        'StudyCircle System database error: ' .
+        'StudyCircle database error: ' .
         $exception->getMessage()
     );
 
@@ -97,7 +145,9 @@ function current_user(): ?array
 {
     global $pdo;
 
-    $id = (int) ($_SESSION['user_id'] ?? 0);
+    $id = (int) (
+        $_SESSION['user_id'] ?? 0
+    );
 
     if ($id < 1) {
         return null;
@@ -186,7 +236,10 @@ function verify_csrf(): void
 
     if (
         !is_string($submitted) ||
-        !hash_equals(csrf_token(), $submitted)
+        !hash_equals(
+            csrf_token(),
+            $submitted
+        )
     ) {
 
         http_response_code(419);
@@ -203,8 +256,10 @@ function verify_csrf(): void
 // REDIRECT HELPER
 // ==========================================
 
-function redirect(string $destination): never
-{
+function redirect(
+    string $destination
+): never {
+
     header(
         'Location: ' . $destination,
         true,
@@ -239,3 +294,64 @@ function flash(
         ? $value
         : null;
 }
+
+
+// ==========================================
+// STRICT ROLE SEPARATION
+// ==========================================
+
+function enforce_study_role_boundary(): void
+{
+    $script = basename(
+        (string) (
+            $_SERVER['SCRIPT_NAME'] ?? ''
+        )
+    );
+
+    // Student-only pages and actions.
+    $studentOnlyPages = [
+        'create-session.php',
+        'edit-session.php',
+        'my-sessions.php',
+        'session-action.php',
+        'download-calendar.php',
+    ];
+
+    if (
+        $script !== 'index.php' &&
+        !in_array(
+            $script,
+            $studentOnlyPages,
+            true
+        )
+    ) {
+        return;
+    }
+
+    $account = current_user();
+
+    if (
+        !$account ||
+        $account['role'] !== 'admin'
+    ) {
+        return;
+    }
+
+    // Admins go to their own dashboard.
+    if ($script === 'index.php') {
+
+        redirect('admin-dashboard.php');
+    }
+
+    // Admins cannot perform student actions.
+    http_response_code(403);
+
+    exit(
+        'Administrators cannot perform ' .
+        'student session actions.'
+    );
+}
+
+
+// Apply role restrictions.
+enforce_study_role_boundary();
